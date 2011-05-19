@@ -1,0 +1,72 @@
+<parameters>
+    <parameter name="AppPath" defaultValue="Default Web Site/openpne" tags="iisapp">
+        <parameterEntry type="ProviderPath" scope="iisapp" match="openpne" />
+    </parameter>
+
+    <parameter name="SetAclParameter1" defaultValue="{AppPath}/var" tags="Hidden">
+        <parameterEntry type="ProviderPath" scope="setAcl" match="openpne/var$" />
+    </parameter>
+
+    <parameter name="OpenPNE_URL1" friendlyName="OpenPNE のホームの URL (config.php:OpenPNE_URL)" description="以下で入力した URL が OpenPNE のホームとなります。" defaultValue="http://localhost/openpne/" tags="AppURL">
+        <parameterValidation type="RegularExpression" validationString="(.*)/$" />
+    </parameter>
+
+    <parameter name="Automatic OpenPNE_URL1" defaultValue="define('OPENPNE_URL', '{OpenPNE_URL1}');" tags="Hidden">
+        <parameterEntry type="TextFile" scope="config.php$" match="define\s*\(\s*'OPENPNE_URL', \s*'([^']*)'\s*\);" />
+    </parameter>
+
+    <parameter name="ENCRYPT_KEY1" friendlyName="データベース暗号化キー (config.php:ENCRYPT_KEY )" description="メンバーのログイン情報を暗号化する際に使用するキーを入力して下さい。" defaultValue="PleseEnterEncriptKey" tags="NoStore">
+        <parameterValidation type="RegularExpression" validationString="^\w{1,56}$" />
+        <parameterEntry type="TextFile" scope="openpne\\config.php$" match="Encript Key" />
+    </parameter>
+
+    <parameter name="MAIL_SERVER_DOMAIN1" friendlyName="メールサーバ名 (config.php:MAIL_SERVER_DOMAIN)" description="メールサーバのドメイン名を入力して下さい。携帯版でメール投稿をする場合に使います。" defaultValue="mail.example.com" tags="NoStore">
+        <parameterValidation type="RegularExpression" validationString="^\S*$" />
+        <parameterEntry type="TextFile" scope="openpne\\config.php$" match="mail.example.com" />
+    </parameter>
+
+
+<!-- Database Parameters -->
+<!--  Database Server --> 
+    <parameter name="DbServer" defaultValue="127.0.0.1" tags="MySQL,dbServer" />
+    <parameter name="Automatic DbServer" defaultValue="'hostspec' => '{DbServer}'," tags="MySQL,Hidden">
+        <parameterEntry type="TextFile" scope="config.php$" match="\s*'hostspec'\s*=>\s*'([^'][\S]*)'," />
+    </parameter>
+
+<!--  Database Name --> 
+    <parameter name="DbName" defaultValue="openpne" tags="MySQL,dbName">
+        <parameterValidation type="RegularExpression" validationString="^\w{1,16}$" />
+        <parameterEntry type="TextFile" scope="install.sql" match="PlaceholderForDb" />
+        <parameterEntry type="TextFile" scope="install2.sql" match="PlaceholderForDb" />
+    </parameter>
+    <parameter name="Automatic DbName" defaultValue="'database' => '{DbName}'," tags="MySQL,Hidden">
+        <parameterEntry type="TextFile" scope="config.php$" match="\s*'database'\s*=>\s*'([^'][\S]*)'," />
+    </parameter>
+
+<!--  Database User Name -->
+    <parameter name="DbUsername" defaultValue="openpne_user" tags="MySQL,DbUsername">
+        <parameterValidation type="RegularExpression" validationString="^\w{1,16}$" />
+        <parameterEntry type="TextFile" scope="install.sql" match="PlaceholderForUser" />
+    </parameter>
+    <parameter name="Automatic DbUsername" defaultValue="'username' => '{DbUsername}'," tags="MySQL,Hidden">
+        <parameterEntry type="TextFile" scope="config.php$" match="\s*'username'\s*=>\s*'([^'][\S]*)'," />
+    </parameter>
+
+<!--  Database User Password --> 
+    <parameter name="DbUserPassword" tags="New,Password,MySQL,DbUserPassword">
+        <parameterEntry type="TextFile" scope="install.sql" match="PlaceholderForPassword" />
+    </parameter>
+    <parameter name="Automatic DbPassword" defaultValue="'password' => '{DbUserPassword}'," tags="MySQL,Hidden">
+        <parameterEntry type="TextFile" scope="config.php$" match="\s*'password'\s*=>\s*'([^'][\S]*)'," />
+    </parameter>
+
+    <parameter name="DbAdminUsername" defaultValue="root" tags="MySQL,DbAdminUsername"></parameter>
+
+    <parameter name="DbAdminPassword" tags="Password,MySQL,DbAdminPassword"></parameter>
+
+    <!-- Connection String -->
+    <parameter name="Connection String" defaultValue="Server={DbServer};Database={DbName};uid={DbAdminUsername};Pwd={DbAdminPassword};" tags="Hidden,MySQLConnectionString,Validate,MySQL">
+        <parameterEntry type="ProviderPath" scope="dbmysql" match="install.sql"/>
+        <parameterEntry type="ProviderPath" scope="dbmysql" match="install2.sql"/>
+    </parameter>
+</parameters>

@@ -1,0 +1,250 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<title>OpenPNE アップグレードガイド</title>
+<style type="text/css">
+<!--
+body {
+  background-color: #fff;
+  color: #000;
+  margin: 0px;
+  padding: 1em;
+  padding-right: 2em;
+}
+h2 {
+  margin: 2em 0 1em;
+}
+p.caution {
+  margin: 1em;
+  padding: 0.8em;
+  border: solid 1px #f63;
+}
+pre {
+  margin: 0.5em;
+  padding: 1em 2em;
+  background-color: #eee;
+}
+dl {
+  margin: 1em 2em;
+}
+dt {
+  font-weight: bold;
+}
+dd {
+  margin: 0 0 0.5em 3em;
+}
+table {
+  margin: 1em;
+  border-collapse: collapse;
+}
+th {
+  background-color: #ddd;
+}
+th, td {
+  padding: 5px 10px;
+  border: solid 1px #000;
+}
+td ul {
+  margin: 0;
+}
+var {
+  color: #922;
+}
+em {
+  font-weight: bold;
+  font-style: normal;
+}
+-->
+</style>
+</head>
+
+<body>
+
+<h1>OpenPNE アップグレードガイド</h1>
+
+<p>最終更新日: 2009/08/10</p>
+
+<h2>目次</h2>
+<ul>
+<li><a href="#section0">0. はじめに</a></li>
+<li><a href="#section1">1. 手順</a></li>
+<li><a href="#section2">2. 作業方法</a>
+  <ul>
+  <li><a href="#section2-1">2-1. アップグレードSQLの実行</a>
+    <ul>
+    <li><a href="#section2-1-1">2-1-1. MySQL 4.1 以降 (5.x 含む) の場合</a></li>
+    <li><a href="#section2-1-2">2-1-2. MySQL 4.0 の場合</a></li>
+    <li><a href="#section2-1-3">2-1-3. PostgreSQL 7.4.x (8.0.x, 8.1.x 含む) の場合</a></li> 
+    </ul></li>
+  <li><a href="#section2-2">2-2. ソースコードの設置</a></li>
+  <li><a href="#section2-3">2-3. 設定ファイルの変更</a>
+    <ul>
+    <li><a href="#section2-3-1">2-3-1. OpenPNE2.14で追加された項目</a></li>
+    <li><a href="#section2-3-2">2-3-2. OpenPNE2.14で変更された項目</a></li>
+    </ul></li>
+  <li><a href="#section2-4">2-4. メールサーバの設定</a></li>
+  <li><a href="#section2-5">2-5. アップグレードスクリプトの実行</a></li>
+  </ul></li>
+</ul>
+
+<hr>
+
+<h2 id="section0">0. はじめに</h2>
+
+<p>この文書は、OpenPNE バージョン2.12.x から バージョン2.14.x へのアップグレード手順を書いたものです。</p>
+
+<p class="caution">アップグレード作業を始める前に、データベースのバックアップを保存しておくことを強くおすすめします。</p>
+
+<h2 id="section1">1. 手順</h2>
+
+<p>アップグレードは以下のような手順で進めます。</p>
+
+<ol>
+<li>アップグレードSQLの実行</li>
+<li>ソースコードの設置</li>
+<li>設定ファイルの変更</li>
+<li>メールサーバの設定</li>
+</ol>
+
+
+<h2 id="section2">2. 作業方法</h2>
+
+<h3 id="section2-1">2-1. アップグレードSQLの実行</h3>
+
+<p>使用している RDBMS に合わせて、アップグレードSQLを実行します。</p>
+
+<h4 id="section2-1-1">2-1-1. MySQL 4.1 以降 (5.x 含む) の場合</h4>
+
+<ul>
+<li><var>OPENPNE_DIR</var>/setup/sql/mysql41/upgrade/upgrade-2.12to2.14.sql</li>
+</ul>
+
+<div>
+<em>[実行例]</em>
+<pre>
+$ cd setup/sql/mysql41/upgrade/
+$ mysql -u username -p --default-character-set=utf8 DBNAME &lt; upgrade-2.12to2.14.sql
+</pre>
+</div>
+
+<h4 id="section2-1-2">2-1-2. MySQL 4.0 の場合</h4>
+
+<ul>
+<li><var>OPENPNE_DIR</var>/setup/sql/mysql40/upgrade/upgrade-2.12to2.14.sql</li>
+</ul>
+
+<div>
+<em>[実行例]</em>
+<pre>
+$ cd setup/sql/mysql40/upgrade/
+$ mysql -u username -p DBNAME &lt; upgrade-2.12to2.14.sql
+</pre>
+</div>
+
+<h4 id="section2-1-3">2-1-3. PostgreSQL 7.4.x (8.0.x, 8.1.x 含む) の場合</h4>
+
+<ul>
+<li><var>OPENPNE_DIR</var>/setup/sql/postgres74/upgrade/upgrade-2.12to2.14.sql</li>
+</ul>
+
+<div>
+<em>[実行例]</em>
+<pre>
+$ cd setup/sql/postgres74/upgrade
+$ psql DBNAME -U username -f upgrade-2.12to2.14.sql
+</pre>
+</div>
+
+<h3 id="section2-2">2-2. ソースコードの設置</h3>
+
+<p>Webサーバ上に OpenPNE 2.14 のソースファイルを設置します。</p>
+
+<p class="caution">
+新旧ソースファイル混在によるトラブルを防ぐため、上書きではなくソースコード全てを交換してください。
+交換後は、<var>OPENPNE_DIR</var>/var ディレクトリの書き込み権限を適切なもの(例: 777)に変更してください。
+</p>
+
+<p><var>OPENPNE_DIR</var>/var 以下に新たなディレクトリが追加されたので、書き込み権限の変更には特に注意してください。</p>
+
+
+<p>『<a href="./OpenPNE_Setup.html">OpenPNE セットアップガイド</a>』も参考にしてください。</p>
+
+
+<h3 id="section2-3">2-3. 設定ファイルの変更</h3>
+
+<p>OpenPNE 2.12 の設定ファイルを参考にして 2.14 用の設定ファイル(config.php)を作成します。</p>
+<p>次表に掲げる設定ファイルの変更内容も参考にしてください。</p>
+
+<h4 id="section2-3-1">2-3-1. OpenPNE2.14で追加された項目</h4>
+<table>
+<tr><th>項目名</th><th>説明</th><th>備考</th></tr>
+<tr><td><strong>_OPENPNE_MAINTENANCE_EXCLUDED_ACTION</strong></td><td>メンテナンス中でも表示するモジュールの設定「OPENPNE_MAINTENANCE_MODULES」に指定されたモジュールの中で、例外的にメンテナンス画面を表示するアクションのリスト</td><td>デフォルト値: <br>(portal)page_user_top<br>(portal)page_portal_user_top_ktai</td></tr>
+<tr><td><strong>OPENPNE_SESSION_CHECK_PC_USER_AGENT</strong></td><td>ログイン時のセッションにユーザーエージェント情報($_SERVER['HTTP_USER_AGENT'])を保存し、随時ユーザーエージェントをチェックをするかどうか(PC版)</td><td><ul><li>true: セッションチェックする</li><li>false: セッションチェックしない</li></ul>デフォルト値: false</td></tr>
+<tr><td><strong>OPENPNE_SESSION_CHECK_KTAI_USER_AGENT</strong></td><td>ログイン時のセッションにユーザーエージェント情報($_SERVER['HTTP_USER_AGENT'])を保存し、随時ユーザーエージェントをチェックをするかどうか(携帯版)</td><td><ul><li>true: セッションチェックする</li><li>false: セッションチェックしない</li></ul>デフォルト値: false</td></tr>
+<tr><td><strong>OPENPNE_ONE_SESSION_PER_USER</strong></td><td>ログイン時のセッションを1ユーザに対して1セッションに制限するかどうか</td><td><ul><li>true: 制限する</li><li>false: 制限しない</li></ul>デフォルト値: false</td></tr>
+<tr><td><strong>MAIL_ADDRESS_HASH_LENGTH</strong></td><td>宛先メールアドレスに付けるハッシュ文字列の長さ</td><td>デフォルト値: 12</td></tr>
+<tr><td><strong>AMAZON_ACCESS_KEY_ID</strong></td><td>Amazon Web Service 公開アクセスキー</td><td>詳細はこちらをご覧下さい。<br>Amazon Product Advertising API <a href="https://affiliate.amazon.co.jp/gp/advertising/api/detail/main.html" target="_blank">https://affiliate.amazon.co.jp/gp/advertising/api/detail/main.html</a></td></tr>
+<tr><td><strong>AMAZON_SECRET_ACCESS_KEY</strong></td><td>Amazon Web Service 秘密キー</td><td>詳細はこちらをご覧下さい。<br>Amazon Product Advertising API <a href="https://affiliate.amazon.co.jp/gp/advertising/api/detail/main.html" target="_blank">https://affiliate.amazon.co.jp/gp/advertising/api/detail/main.html</a></td></tr>
+<tr><td><strong>OPENPNE_DB_ERROR_LOG</strong></td><td>DBエラーログ出力を出力するかどうか</td><td><ul><li>true: 出力する</li><li>false: 出力しない</li></ul></td></tr>
+<tr><td><strong>_ALLOWED_IP_LIST_FOR_KANSHI</strong></td><td>監視モジュールアクセスIP制限 (m=kanshi へのアクセスを許可するIPのリスト)</td><td>デフォルト値: 指定なし</td></tr>
+<tr><td><strong>IS_PASSWORD_QUERY_ANSWER</strong></td><td>秘密の質問を使用するかどうか (0 ～ 2 の値)</td><td><ul><li>0: 使用しない</li><li>1: 使用する(未登録でも使用可能)</li><li>2: 使用する(未登録時に登録を強制する)</li></ul>デフォルト値: 2</td></tr>
+<tr><td><strong>CHECK_POST_ACTIONS</strong></td><td>投稿制限のチェック対象とするアクションのリスト</td><td>デフォルト値:<br>日記・トピック・イベントの投稿、メッセージの送信、フレンド申請のアクション</td></tr>
+<tr><td><strong>OPENPNE_POST_INTERVAL_UNFAIR_SECOND</strong></td><td>不正な連続投稿と判断する間隔 (秒単位)</td><td>0 が指定された場合は不正な連続投稿をチェックしない<br>デフォルト値: 10</td></tr>
+<tr><td><strong>OPENPNE_POST_INTERVAL_UNFAIR_COUNT</strong></td><td>不正な連続投稿が連続何回行われたら投稿制限するか</td><td>デフォルト値: 10</td></tr>
+<tr><td><strong>OPENPNE_POST_INTERVAL_UNFAIR_COUNT_RESET_SECOND</strong></td><td>前回投稿から何秒以上空いたら不正な連続投稿回数をリセットするか</td><td>0 が指定された場合はリセットしない<br>デフォルト値: 60*60</td></tr>
+<tr><td><strong>OPENPNE_POST_USE_DB</strong></td><td>前回投稿時刻と投稿回数の保存先にデータベースを使用するかどうか</td><td><ul><li>false: セッションを使用</li><li>true: データベースを使用</li></ul>デフォルト値: true</td></tr>
+</table>
+
+<h4 id="section2-3-2">2-3-2. OpenPNE2.14で変更された項目</h4>
+<table>
+<tr><th>項目名</th><th>説明</th><th>変更点</th><th>備考</th></tr>
+<tr><td><strong>_OPENPNE_SSL_REQUIRED</strong></td><td>SSLを使用することが必須であるアクションのリスト</td><td>'page_o_password_reset' と 'do_o_password_reset' が追加された</td><td>'pc' と 'ktai' の両方に追加されている</td></tr>
+</table>
+
+
+<h3 id="section2-4">2-4. メールサーバの設定</h3>
+
+<p>携帯版を使用しない場合は以下の設定は不要です。</p>
+<p>MAIL_SERVER_DOMAIN に届くメールで、システムで利用するメールアドレスに以下が追加されます。</p>
+
+<table>
+<tr><th>項目</th><th>新形式</th><th>旧形式</th></tr>
+<tr><td>アルバム投稿</td><td>a<var>XXX</var>-<var>YYY</var>@MAIL_SERVER_DOMAIN</td><td>album@MAIL_SERVER_DOMAIN</td></tr>
+<tr><td>アルバム画像投稿</td><td>ai<var>XXX</var>-<var>YYY</var>@MAIL_SERVER_DOMAIN</td><td>ai<var>XXX</var>@MAIL_SERVER_DOMAIN</td></tr>
+<tr><td>アルバム表紙投稿</td><td>ac<var>XXX</var>-<var>YYY</var>@MAIL_SERVER_DOMAIN</td><td>ac<var>XXX</var>@MAIL_SERVER_DOMAIN</td></tr>
+</table>
+<ul>
+<li><var>XXX</var> には数字。</li>
+<li><var>YYY</var> には12バイトの英数字([0-9a-f]{12})。</li>
+</ul>
+<p>設定方法は『<a href="./OpenPNE_Setup.html">OpenPNE セットアップガイド</a>』を参考にしてください。</p>
+
+<h3 id="section2-5">2-5. アップグレードスクリプトの実行</h3>
+
+<p>アップグレード用のPHPスクリプトを実行します。</p>
+<p class="caution">
+スクリプト実行前に、必ず 2-3. 設定ファイルの変更 で config.php の設定を済ませてください。
+</p>
+
+<h4 id="section2-5-1">2-5-1. 実行するスクリプト</h4>
+<ul>
+<li><var>OPENPNE_DIR</var>/setup/script/upgrade/upgrade01.php</li>
+</ul>
+
+<div>
+<em>[実行例]</em>
+<pre>
+$ cd setup/script/upgrade/
+$ php upgrade01.php
+</pre>
+<p>※スクリプトの実行は「setup/script/upgrade/」で行ってください。<br />
+「Complete!」と表示されたらスクリプト完了です。</p>
+</div>
+
+<hr>
+<p>以上でアップグレード作業は完了です。</p>
+
+</body>
+</html>
